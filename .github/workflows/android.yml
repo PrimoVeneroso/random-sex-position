@@ -1,0 +1,54 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Fix Base URL and Routes for Native App
+        run: |
+          sed -i 's|base: "/random-sex-position/",|base: "/",|g' vite.config.ts
+          sed -i 's|export const ROUTE_PREFIX = "/random-sex-position";|export const ROUTE_PREFIX = "";|g' src/constants/routes.ts
+
+      - name: Build Web App
+        run: pnpm run build
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+          
+      - name: Build APK
+        working-directory: ./android
+        run: ./gradlew assembleDebug
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: random-sex-position-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk

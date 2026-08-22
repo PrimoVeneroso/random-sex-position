@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Random Position</string>
+    <string name="title_activity_main">Random Position</string>
+    <string name="package_name">org.primoveneroso.randomsexposition</string>
+    <string name="custom_url_scheme">org.primoveneroso.randomsexposition</string>
+</resources>

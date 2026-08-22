@@ -67,7 +67,7 @@ for pageNumber in range(START_PAGE, END_PAGE + 1):
     result.extend(getImagesByPageNumber(pageNumber))
 
 jsonContent = {
-    'developer': 'Ramin Rezaei',
+    'developer': 'Anonymous',
     'created': str(datetime.now()),
     'pages': '{} - {}'.format(START_PAGE, END_PAGE),
     'data': result
