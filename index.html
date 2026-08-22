@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <title>Random Position</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, shrink-to-fit=no, user-scalable=no" />
+    
+    <!-- PWA & Metadata -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#101828" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="application-name" content="Random Position" />
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/png" href="/icon-192.png" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Random Position" />
+    <meta property="og:description" content="Applicazione per la visualizzazione casuale di posizioni." />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" />
+
+    <style>
+      @import "tailwindcss";
+      @custom-variant dark (&:where(.dark, .dark *));
+
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        border-radius: 6px;
+        background: #37474f;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        cursor: pointer;
+        background: #e60076;
+      }
+    </style>
+
+    <!-- Service Worker Registration -->
+    <script type="module">
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register(import.meta.env.BASE_URL + 'sw.js', { scope: import.meta.env.BASE_URL })
+            .then((reg) => console.log('SW registrato:', reg.scope))
+            .catch((err) => console.error('Errore SW:', err));
+        });
+      }
+    </script>
+  </head>
+  <body class="dark dark:bg-gray-900 dark:text-white bg-white text-slate-900 w-full">
+    <div id="app"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

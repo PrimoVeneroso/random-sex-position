@@ -1,0 +1,14 @@
+@use "fonts.scss";
+@use "./animate.min.css";
+
+*,
+*::before,
+*::after {
+  font-family: "Lato", sans-serif;
+}
+
+html,
+body {
+  user-select: none;
+  scroll-behavior: smooth;
+}

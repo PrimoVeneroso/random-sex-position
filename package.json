@@ -1,0 +1,43 @@
+{
+  "name": "random-sex-position",
+  "private": true,
+  "version": "1.0.2",
+  "author": "Ramin",
+  "type": "module",
+  "license": "MIT",
+  "homepage": "https://ramiiin.ir/random-sex-position",
+  "description": "This Repo is created with the (sexpositions.club) data for fun and gives you a random sex position. 😅😈",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.3.1",
+    "clsx": "^2.1.1",
+    "qs": "^6.15.3",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-router": "^7.18.0",
+    "react-switch": "^7.1.0",
+    "tailwindcss": "^4.3.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/qs": "^6.15.1",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.2.0",
+    "eslint": "^10.6.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.3",
+    "globals": "^17.7.0",
+    "sass-embedded": "^1.100.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.62.0",
+    "vite": "^7.3.6",
+    "vite-tsconfig-paths": "^6.1.1"
+  },
+  "packageManager": "pnpm@11.9.0"
+}
