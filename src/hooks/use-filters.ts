@@ -38,17 +38,32 @@ export function useActions() {
 
   const filteredData = useMemo(() => {
     let result = data;
+    const isExcludeMode = filters.includes('EXCLUDE_MODE');
     
     const levelFilters = filters.filter(f => ['SAFE', 'DANGEROUS', 'BE_CAREFUL'].includes(f));
     if (levelFilters.length > 0) {
-      result = result.filter((item) => levelFilters.includes(item.level.toUpperCase().replace(" ", "_")));
+      if (isExcludeMode) {
+        result = result.filter((item) => !levelFilters.includes(item.level.toUpperCase().replace(" ", "_")));
+      } else {
+        result = result.filter((item) => levelFilters.includes(item.level.toUpperCase().replace(" ", "_")));
+      }
     }
     
-    if (filters.includes('FAVORITES')) result = result.filter(item => favoritePositions.includes(item.id));
-    if (filters.includes('ANAL')) result = result.filter(item => item.anal);
-    if (filters.includes('VAGINAL')) result = result.filter(item => item.vaginal);
-    if (filters.includes('ORAL')) result = result.filter(item => item.oral);
-    if (filters.includes('ALREADY_DONE')) result = result.filter(item => item.already_done);
+    const applyFilter = (key: string, matchFn: (i: any) => boolean) => {
+      if (filters.includes(key)) {
+        if (isExcludeMode) {
+          result = result.filter(item => !matchFn(item));
+        } else {
+          result = result.filter(item => matchFn(item));
+        }
+      }
+    };
+
+    applyFilter('FAVORITES', item => favoritePositions.includes(item.id));
+    applyFilter('ANAL', item => item.anal);
+    applyFilter('VAGINAL', item => item.vaginal);
+    applyFilter('ORAL', item => item.oral);
+    applyFilter('ALREADY_DONE', item => item.already_done);
     
     return result;
   }, [filters, data, favoritePositions]);
@@ -70,14 +85,30 @@ export function useActions() {
         searchParams.delete(QUERY_PARAMS_KEYS.FILTERS);
       }
 
+      // We just need to randomly pick one if possible, so we can re-evaluate filtering here or let UI handle the click later
+      // Since it's heavy to duplicate filtering logic, we can rely on UI "New Position" if nextIndex logic fails here
+      // But let's copy the same exclude mode logic to maintain behavior:
       let result = data;
+      const isExcludeMode = newFilters.includes('EXCLUDE_MODE');
+      
       const levelFilters = newFilters.filter(f => ['SAFE', 'DANGEROUS', 'BE_CAREFUL'].includes(f));
-      if (levelFilters.length > 0) result = result.filter((item) => levelFilters.includes(item.level.toUpperCase().replace(" ", "_")));
-      if (newFilters.includes('FAVORITES')) result = result.filter(item => favoritePositions.includes(item.id));
-      if (newFilters.includes('ANAL')) result = result.filter(item => item.anal);
-      if (newFilters.includes('VAGINAL')) result = result.filter(item => item.vaginal);
-      if (newFilters.includes('ORAL')) result = result.filter(item => item.oral);
-      if (newFilters.includes('ALREADY_DONE')) result = result.filter(item => item.already_done);
+      if (levelFilters.length > 0) {
+        if (isExcludeMode) result = result.filter((item) => !levelFilters.includes(item.level.toUpperCase().replace(" ", "_")));
+        else result = result.filter((item) => levelFilters.includes(item.level.toUpperCase().replace(" ", "_")));
+      }
+      
+      const applyFilterSync = (key: string, matchFn: (i: any) => boolean) => {
+        if (newFilters.includes(key)) {
+          if (isExcludeMode) result = result.filter(item => !matchFn(item));
+          else result = result.filter(item => matchFn(item));
+        }
+      };
+
+      applyFilterSync('FAVORITES', item => favoritePositions.includes(item.id));
+      applyFilterSync('ANAL', item => item.anal);
+      applyFilterSync('VAGINAL', item => item.vaginal);
+      applyFilterSync('ORAL', item => item.oral);
+      applyFilterSync('ALREADY_DONE', item => item.already_done);
 
       if (result.length > 0) {
           const nextIndex = getRandomNumber(0, result.length - 1);
