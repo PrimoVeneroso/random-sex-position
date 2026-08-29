@@ -1,24 +1,50 @@
 import { clsx } from "clsx";
-import { useMemo } from "react";
-
+import { useMemo, useState, useEffect } from "react";
 import { useAppContext } from "@/hooks";
 import { PositionListCard } from "@/components/position-list-card";
 import { PositionListHeader } from "@/components/position-list-header";
 import { PositionListGridCard } from "@/components/position-list-grid-card";
-
-import { data, type DataItem } from "../data";
+import { getCustomTags } from "@/utils";
+import { data as rawData, type DataItem } from "../data";
 
 export function PositionList() {
   const { showGrid, showFavorites, favoritePositions } = useAppContext();
-  const positions = useMemo(
-    () =>
-      showFavorites
-        ? data.filter((dataItem: DataItem) =>
-            favoritePositions.includes(dataItem.id)
-          )
-        : data,
-    [showFavorites, favoritePositions]
-  );
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortAlpha, setSortAlpha] = useState(false);
+  const [customTags, setCustomTags] = useState(getCustomTags());
+
+  useEffect(() => {
+    const handleStorage = () => setCustomTags(getCustomTags());
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
+  const data = useMemo(() => {
+    return rawData.map(item => ({
+      ...item,
+      ...(customTags[item.id] || {})
+    }));
+  }, [customTags]);
+
+  const positions = useMemo(() => {
+    let result = data;
+    if (showFavorites) {
+      result = result.filter((item: DataItem) => favoritePositions.includes(item.id));
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter((item: DataItem) => item.title.toLowerCase().includes(q));
+    }
+    if (sortAlpha) {
+      // Sort ignoring initial numbers (e.g. "69 - Something" -> "Something")
+      result = [...result].sort((a, b) => {
+        const titleA = a.title.replace(/^[0-9\-\s]+/, "").trim();
+        const titleB = b.title.replace(/^[0-9\-\s]+/, "").trim();
+        return titleA.localeCompare(titleB);
+      });
+    }
+    return result;
+  }, [showFavorites, favoritePositions, searchQuery, sortAlpha, data]);
 
   return (
     <div
@@ -26,6 +52,20 @@ export function PositionList() {
       className="flex items-center justify-center w-full flex-col gap-4 p-5 relative mx-auto max-w-2xl"
     >
       <PositionListHeader />
+      
+      <div className="w-full flex gap-2 items-center z-10 dark:text-white mb-2">
+        <input 
+          type="search"
+          placeholder="Cerca per titolo..."
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          className="flex-1 p-2 rounded-md bg-slate-100/10 border border-slate-500/50 outline-none"
+        />
+        <label className="flex items-center gap-1 cursor-pointer whitespace-nowrap text-sm border border-slate-500/50 p-2 rounded-md bg-slate-100/10">
+          <input type="checkbox" checked={sortAlpha} onChange={e => setSortAlpha(e.target.checked)} />
+          Ordina A-Z
+        </label>
+      </div>
 
       <ul
         className={clsx("w-full gap-2 pb-10", {
@@ -35,9 +75,9 @@ export function PositionList() {
       >
         {positions.map((item: DataItem, index: number) =>
           showGrid ? (
-            <PositionListGridCard position={item} />
+            <PositionListGridCard key={item.id} position={item} />
           ) : (
-            <PositionListCard position={item} order={index + 1} />
+            <PositionListCard key={item.id} position={item} order={index + 1} />
           )
         )}
       </ul>

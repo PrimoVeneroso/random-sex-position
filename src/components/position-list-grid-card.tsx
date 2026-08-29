@@ -15,7 +15,7 @@ export function PositionListGridCard({ position }: { position: DataItem }) {
         alt={imageAlt}
         loading="lazy"
         className="w-30 h-25"
-        src={`https://ramiiin.ir/random-sex-position/images/positions/${fileName}`}
+        src={`images/positions/${fileName}`}
       />
       <div className="flex items-center justify-between w-full px-2 pb-1">
         <Level isDotStyle level={level} />
