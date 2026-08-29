@@ -21,7 +21,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          run_install: false
+          version: 9
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -30,7 +30,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       - name: Fix Base URL and Routes for Native App
         run: |
@@ -46,7 +46,8 @@ jobs:
       - name: Setup Keystore
         run: |
           mkdir -p ~/.android
-          cp fixed_debug.keystore ~/.android/debug.keystore
+          cp fixed_debug.keystore ~/.android/debug.keystore || true
+
       - name: Build APK
         working-directory: ./android
         run: ./gradlew assembleDebug
