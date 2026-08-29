@@ -6,7 +6,7 @@ import { QUERY_PARAMS_KEYS } from "@/constants";
 import { getRandomNumber, getCustomTags } from "@/utils";
 import { useAppContext } from "./use-app-context";
 
-import { data as rawData, type DataItem } from "../../data";
+import { data as rawData } from "../../data";
 
 export function useActions() {
   const [searchParams, setSearchParams] = useSearchParams();

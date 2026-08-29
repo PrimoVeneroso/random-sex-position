@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useActions } from "@/hooks";
 import { LikeButton } from "./like-button";
 import { Level } from "./level";
-import { getCustomTags, updateCustomTags } from "@/utils";
+import { updateCustomTags } from "@/utils";
 
 const DEFAULT_POSITION = {
   id: 0,
