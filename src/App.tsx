@@ -21,24 +21,12 @@ export function App() {
         className="fixed top-0 left-0 pointer-events-none opacity-50 blur-sm"
       />
 
-      {/* HEADER */}
       <Header />
-
-      {/* SEX POSITION CARD */}
       <SexPositionCard />
-
-      {/* FILTER */}
-      <Filters />
-
-      {/* ACTIONS */}
       <Actions />
-
-      {/* FAVORITE LIST */}
+      <Filters />
       <FavoriteList />
-
       <br />
-
-      {/* Footer */}
       <Footer />
     </div>
   );

@@ -43,6 +43,10 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
           
+      - name: Setup Keystore
+        run: |
+          mkdir -p ~/.android
+          cp fixed_debug.keystore ~/.android/debug.keystore
       - name: Build APK
         working-directory: ./android
         run: ./gradlew assembleDebug
