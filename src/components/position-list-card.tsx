@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Level } from "@/components/level";
 import { LikeButton } from "@/components/like-button";
-import { updateCustomTags, getCustomTags } from "@/utils";
+import { updateCustomTags } from "@/utils";
 import type { DataItem } from "../../data";
 
 export function PositionListCard({
