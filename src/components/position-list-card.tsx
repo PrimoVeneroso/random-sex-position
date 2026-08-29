@@ -58,7 +58,7 @@ export function PositionListCard({
         <span>{title}</span>
       </h3>
       
-      <div className="flex flex-wrap gap-3 text-xs justify-center w-full bg-slate-100 p-2 rounded border border-slate-200">
+      <div className="flex flex-wrap gap-3 text-xs justify-center w-full bg-slate-100 p-2 rounded border border-slate-200 text-slate-800">
         {["anal", "vaginal", "oral", "already_done"].map(tag => (
           <label key={tag} className="flex items-center gap-1 cursor-pointer">
             <input 
