@@ -6,6 +6,10 @@ export interface DataItem {
   level: string;
   fileName: string;
   imageAlt: string;
+  anal: boolean;
+  vaginal: boolean;
+  oral: boolean;
+  already_done: boolean;
 }
 
 export const { data } = APP_DATA;

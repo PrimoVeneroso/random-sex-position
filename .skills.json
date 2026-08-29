@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "skills": {
+    "code-review": {
+      "version": "1.0.0",
+      "installedAt": "2026-08-29T10:06:55.171Z",
+      "platform": "gemini",
+      "contentHash": "a36edc8e90bf772b3577c3819abc824edca4e5e434b843c23cce91836e91d00c"
+    },
+    "anthropic-frontend-design": {
+      "version": "1.0.1",
+      "installedAt": "2026-08-29T10:07:02.481Z",
+      "platform": "gemini",
+      "contentHash": "c3f60bd63fcf6d417e1c0bb3202f91b7a31dcc6c5ab726dea0dc8210cafae683"
+    },
+    "alirezarezvani-senior-frontend": {
+      "version": "1.0.2",
+      "installedAt": "2026-08-29T10:07:25.461Z",
+      "platform": "gemini"
+    }
+  }
+}

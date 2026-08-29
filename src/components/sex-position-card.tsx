@@ -1,7 +1,8 @@
+import { useState, useEffect } from "react";
 import { useActions } from "@/hooks";
-
 import { LikeButton } from "./like-button";
 import { Level } from "./level";
+import { getCustomTags, updateCustomTags } from "@/utils";
 
 const DEFAULT_POSITION = {
   id: 0,
@@ -9,13 +10,38 @@ const DEFAULT_POSITION = {
   level: "",
   fileName: "0-preview.png",
   imageAlt: "Random Sex Position",
+  anal: false,
+  vaginal: false,
+  oral: false,
+  already_done: false,
 };
 
 export function SexPositionCard() {
   const { activePosition, positionId } = useActions();
+  const position = positionId === 0 || !activePosition ? DEFAULT_POSITION : activePosition;
+  const { id, level, title, imageAlt, fileName } = position;
+  
+  const [tags, setTags] = useState({
+    anal: position.anal || false,
+    vaginal: position.vaginal || false,
+    oral: position.oral || false,
+    already_done: position.already_done || false,
+  });
 
-  const { id, level, title, imageAlt, fileName } =
-    positionId === 0 || !activePosition ? DEFAULT_POSITION : activePosition;
+  useEffect(() => {
+    setTags({
+      anal: position.anal || false,
+      vaginal: position.vaginal || false,
+      oral: position.oral || false,
+      already_done: position.already_done || false,
+    });
+  }, [position]);
+
+  const handleTagChange = (tag: string, value: boolean) => {
+    setTags(prev => ({ ...prev, [tag]: value }));
+    updateCustomTags(id, { [tag]: value });
+    window.dispatchEvent(new Event('storage')); // trigger update
+  };
 
   return (
     <div
@@ -40,6 +66,21 @@ export function SexPositionCard() {
           ? `Position Name: ${title}`
           : "Get Your Random Position And Try It Tonight!"}
       </p>
+
+      {!!id && (
+        <div className="mt-4 flex flex-wrap gap-4 text-xs justify-center w-full bg-slate-100 p-2 rounded">
+          {["anal", "vaginal", "oral", "already_done"].map(tag => (
+            <label key={tag} className="flex items-center gap-1 cursor-pointer">
+              <input 
+                type="checkbox" 
+                checked={tags[tag as keyof typeof tags]} 
+                onChange={(e) => handleTagChange(tag, e.target.checked)}
+              />
+              {tag.replace("_", " ").toUpperCase()}
+            </label>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

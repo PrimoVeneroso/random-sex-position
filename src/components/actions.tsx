@@ -9,6 +9,10 @@ export function Actions() {
     useActions();
 
   const handleRandomButton = useCallback(() => {
+    if (filteredData.length === 0) {
+      alert("Nessuna posizione trovata con i filtri attuali!");
+      return;
+    }
     const nextIndex = getRandomNumber(0, filteredData.length - 1);
     setPositionId(filteredData[nextIndex].id);
   }, [filteredData]);
