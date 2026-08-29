@@ -50,7 +50,7 @@ export function PositionListCard({
         alt={imageAlt}
         loading="lazy"
         className="rounded-md w-full"
-        src={`images/positions/${fileName}`}
+        src={`${import.meta.env.BASE_URL}images/positions/${fileName}`}
       />
       <h3 className="flex items-center gap-2 text-slate-950">
         <span>{order}</span>

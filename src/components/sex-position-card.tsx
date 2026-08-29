@@ -56,7 +56,7 @@ export function SexPositionCard() {
         </div>
       )}
 
-      <img loading="lazy" alt={imageAlt} src={`images/positions/${fileName}`} />
+      <img loading="lazy" alt={imageAlt} src={`${import.meta.env.BASE_URL}images/positions/${fileName}`} />
 
       <h3 className="mt-4">
         {id ? `Position No: ${id}` : "More Than 500 Sex Positions"}

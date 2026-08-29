@@ -17,7 +17,7 @@ export function App() {
         alt=""
         loading="lazy"
         draggable={false}
-        src="images/background.png"
+        src={`${import.meta.env.BASE_URL}images/background.png`}
         className="fixed top-0 left-0 pointer-events-none opacity-50 blur-sm"
       />
 

@@ -15,7 +15,7 @@ export function PositionListGridCard({ position }: { position: DataItem }) {
         alt={imageAlt}
         loading="lazy"
         className="w-30 h-25"
-        src={`images/positions/${fileName}`}
+        src={`${import.meta.env.BASE_URL}images/positions/${fileName}`}
       />
       <div className="flex items-center justify-between w-full px-2 pb-1">
         <Level isDotStyle level={level} />

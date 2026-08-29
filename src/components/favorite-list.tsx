@@ -87,7 +87,7 @@ export function FavoriteList() {
                   loading="lazy"
                   alt={position?.imageAlt}
                   className="w-18 h-18 rounded-md transform duration-300 group-hover:-translate-y-4"
-                  src={`images/positions/${
+                  src={`${import.meta.env.BASE_URL}images/positions/${
                     position?.fileName ?? "0-preview.png"
                   }`}
                 />
