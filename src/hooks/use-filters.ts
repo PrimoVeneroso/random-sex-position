@@ -1,72 +1,61 @@
 import { parse } from "qs";
-import { useCallback, useMemo, useEffect, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router";
 
 import { QUERY_PARAMS_KEYS } from "@/constants";
-import { getRandomNumber, getCustomTags } from "@/utils";
+import { normalizeLevel, isLevelFilter } from "@/constants/filters";
+import { getRandomNumber, useCustomTags } from "@/utils";
 import { useAppContext } from "./use-app-context";
 
 import { data as rawData } from "../../data";
+import type { DataItem } from "../../data";
+
+// #9: single source of truth for filtering
+function applyFilters(data: DataItem[], filters: string[], favorites: number[]): DataItem[] {
+  const exclude = filters.includes('EXCLUDE_MODE');
+  const levels = filters.filter(isLevelFilter);
+
+  const matches = (item: DataItem) => {
+    if (levels.length > 0 && !levels.includes(normalizeLevel(item.level) ?? "")) return false;
+    if (filters.includes('FAVORITES') && !favorites.includes(item.id)) return false;
+    if (filters.includes('ANAL') && !item.anal) return false;
+    if (filters.includes('VAGINAL') && !item.vaginal) return false;
+    if (filters.includes('ORAL') && !item.oral) return false;
+    if (filters.includes('ALREADY_DONE') && !item.already_done) return false;
+    return true;
+  };
+
+  return exclude ? data.filter(item => !matches(item)) : data.filter(matches);
+}
 
 export function useActions() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { favoritePositions } = useAppContext();
-  const [customTags, setCustomTags] = useState(getCustomTags());
+  const customTags = useCustomTags(); // #14: useSyncExternalStore
 
-  useEffect(() => {
-    const handleStorage = () => setCustomTags(getCustomTags());
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, []);
+  // #8: validate position ID
+  const rawId = Number(searchParams.get(QUERY_PARAMS_KEYS.POSITION_ID));
+  const positionId = Number.isFinite(rawId) ? rawId : 0;
 
-  const positionId = Number(
-    searchParams.get(QUERY_PARAMS_KEYS.POSITION_ID) || 0
-  );
-
-  const filters = Object.keys(
-    parse(searchParams.get(QUERY_PARAMS_KEYS.FILTERS) || "", {
-      delimiter: ",",
-    })
+  // #11: memoize filters from raw string
+  const filtersRaw = searchParams.get(QUERY_PARAMS_KEYS.FILTERS) ?? "";
+  const filters = useMemo(
+    () => Object.keys(parse(filtersRaw, { delimiter: "," })),
+    [filtersRaw]
   );
 
   const data = useMemo(() => {
     return rawData.map(item => ({
       ...item,
-      ...(customTags[item.id] || {})
+      ...(customTags[String(item.id)] || {})
     }));
   }, [customTags]);
 
-  const filteredData = useMemo(() => {
-    let result = data;
-    const isExcludeMode = filters.includes('EXCLUDE_MODE');
-    
-    const levelFilters = filters.filter(f => ['SAFE', 'DANGEROUS', 'BE_CAREFUL'].includes(f));
-    if (levelFilters.length > 0) {
-      if (isExcludeMode) {
-        result = result.filter((item) => !levelFilters.includes(item.level.toUpperCase().replace(" ", "_")));
-      } else {
-        result = result.filter((item) => levelFilters.includes(item.level.toUpperCase().replace(" ", "_")));
-      }
-    }
-    
-    const applyFilter = (key: string, matchFn: (i: any) => boolean) => {
-      if (filters.includes(key)) {
-        if (isExcludeMode) {
-          result = result.filter(item => !matchFn(item));
-        } else {
-          result = result.filter(item => matchFn(item));
-        }
-      }
-    };
-
-    applyFilter('FAVORITES', item => favoritePositions.includes(item.id));
-    applyFilter('ANAL', item => item.anal);
-    applyFilter('VAGINAL', item => item.vaginal);
-    applyFilter('ORAL', item => item.oral);
-    applyFilter('ALREADY_DONE', item => item.already_done);
-    
-    return result;
-  }, [filters, data, favoritePositions]);
+  // #9: single applyFilters call
+  const filteredData = useMemo(
+    () => applyFilters(data, filters, favoritePositions),
+    [filters, data, favoritePositions]
+  );
 
   const setPositionId = (id: number) => {
     searchParams.set(QUERY_PARAMS_KEYS.POSITION_ID, id.toString());
@@ -85,37 +74,11 @@ export function useActions() {
         searchParams.delete(QUERY_PARAMS_KEYS.FILTERS);
       }
 
-      // We just need to randomly pick one if possible, so we can re-evaluate filtering here or let UI handle the click later
-      // Since it's heavy to duplicate filtering logic, we can rely on UI "New Position" if nextIndex logic fails here
-      // But let's copy the same exclude mode logic to maintain behavior:
-      let result = data;
-      const isExcludeMode = newFilters.includes('EXCLUDE_MODE');
-      
-      const levelFilters = newFilters.filter(f => ['SAFE', 'DANGEROUS', 'BE_CAREFUL'].includes(f));
-      if (levelFilters.length > 0) {
-        if (isExcludeMode) result = result.filter((item) => !levelFilters.includes(item.level.toUpperCase().replace(" ", "_")));
-        else result = result.filter((item) => levelFilters.includes(item.level.toUpperCase().replace(" ", "_")));
-      }
-      
-      const applyFilterSync = (key: string, matchFn: (i: any) => boolean) => {
-        if (newFilters.includes(key)) {
-          if (isExcludeMode) result = result.filter(item => !matchFn(item));
-          else result = result.filter(item => matchFn(item));
-        }
-      };
-
-      applyFilterSync('FAVORITES', item => favoritePositions.includes(item.id));
-      applyFilterSync('ANAL', item => item.anal);
-      applyFilterSync('VAGINAL', item => item.vaginal);
-      applyFilterSync('ORAL', item => item.oral);
-      applyFilterSync('ALREADY_DONE', item => item.already_done);
-
+      // #9: reuse applyFilters
+      const result = applyFilters(data, newFilters, favoritePositions);
       if (result.length > 0) {
-          const nextIndex = getRandomNumber(0, result.length - 1);
-          searchParams.set(
-            QUERY_PARAMS_KEYS.POSITION_ID,
-            result[nextIndex].id.toString()
-          );
+        const nextIndex = getRandomNumber(0, result.length - 1);
+        searchParams.set(QUERY_PARAMS_KEYS.POSITION_ID, result[nextIndex].id.toString());
       }
 
       setSearchParams(searchParams);
@@ -123,17 +86,16 @@ export function useActions() {
     [filters, data, favoritePositions]
   );
 
+  // #19: reset only filters, keep position
   const resetFilters = () => {
     searchParams.delete(QUERY_PARAMS_KEYS.FILTERS);
-    searchParams.delete(QUERY_PARAMS_KEYS.POSITION_ID);
     setSearchParams(searchParams);
   };
 
+  // #8: null instead of silent fallback
   const activePosition = useMemo(() => {
-    return (
-      filteredData.find((item) => item.id === positionId) ?? filteredData[0]
-    );
-  }, [filters, positionId, filteredData]);
+    return filteredData.find((item) => item.id === positionId) ?? null;
+  }, [positionId, filteredData]);
 
   return {
     setFilter,

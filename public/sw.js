@@ -1,4 +1,4 @@
-const CACHE_NAME = 'position-cache-v2';
+const CACHE_NAME = 'position-cache-v3';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -30,11 +30,23 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Navigations: network-first (so updates actually show up)
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then((r) => {
+          caches.open(CACHE_NAME).then((c) => c.put(event.request, r.clone()));
+          return r;
+        })
+        .catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
+
+  // Everything else: cache-first
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
+    caches.match(event.request).then((cached) => {
+      if (cached) return cached;
       return fetch(event.request).then((networkResponse) => {
         if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
           return networkResponse;

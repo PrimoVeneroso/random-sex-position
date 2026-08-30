@@ -1,39 +1,48 @@
-import { StrictMode } from "react";
+import { StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Route, Routes } from "react-router";
+import { HashRouter, Route, Routes, useNavigate } from "react-router";
 
 import { ContextProvider } from "@/context/context-provider";
-import { APP_URL } from "@/constants/routes";
 
 import { App } from "@/App";
 import { PositionList } from "@/position-list";
 
 import "@/styles/main.scss";
 
-const ROUTES = [
-  {
-    id: 1,
-    element: <App />,
-    path: APP_URL.index,
-  },
-  {
-    id: 2,
-    element: <PositionList />,
-    path: APP_URL.positionList,
-  },
-];
+// #22: run schema migration before anything reads localStorage
+import { migrateStorage } from "@/utils/favorites";
+migrateStorage();
+
+function BackButtonHandler() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    // ponytail: dynamic import so web build doesn't break if @capacitor/app isn't installed
+    import("@capacitor/app").then(({ App: CapApp }) => {
+      CapApp.addListener("backButton", () => {
+        if (window.history.length > 1) navigate(-1);
+        else CapApp.exitApp();
+      });
+    }).catch(() => {});
+    return () => {
+      import("@capacitor/app").then(({ App: CapApp }) => {
+        CapApp.removeAllListeners();
+      }).catch(() => {});
+    };
+  }, [navigate]);
+  return null;
+}
 
 createRoot(document.getElementById("app")!).render(
   <StrictMode>
     <ContextProvider>
-      <BrowserRouter>
+      <HashRouter>
+        <BackButtonHandler />
         <Routes>
-          {ROUTES.map((route) => (
-            <Route key={route.id} path={route.path} element={route.element} />
-          ))}
+          <Route path="/" element={<App />} />
+          <Route path="/position-list" element={<PositionList />} />
           <Route path="*" element={<App />} />
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </ContextProvider>
   </StrictMode>
 );

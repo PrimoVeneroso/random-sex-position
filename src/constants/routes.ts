@@ -1,6 +1,8 @@
-export const ROUTE_PREFIX = "/random-sex-position";
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+export const ROUTE_PREFIX = base;
 
 export const APP_URL = {
-  index: `${ROUTE_PREFIX}/`,
-  positionList: `${ROUTE_PREFIX}/position-list/`,
+  index: `${base}/`,
+  positionList: `${base}/position-list/`,
 } as const;

@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { Level } from "@/components/level";
 import { LikeButton } from "@/components/like-button";
 import { updateCustomTags } from "@/utils";
@@ -13,26 +12,16 @@ export function PositionListCard({
 }) {
   const { id, title, imageAlt, level, fileName } = position;
 
-  const [tags, setTags] = useState({
-    anal: position.anal || false,
-    vaginal: position.vaginal || false,
-    oral: position.oral || false,
-    already_done: position.already_done || false,
-  });
-
-  useEffect(() => {
-    setTags({
-      anal: position.anal || false,
-      vaginal: position.vaginal || false,
-      oral: position.oral || false,
-      already_done: position.already_done || false,
-    });
-  }, [position]);
+  // #17: derive tags directly from props, no shadow state
+  const tags = {
+    anal: position.anal ?? false,
+    vaginal: position.vaginal ?? false,
+    oral: position.oral ?? false,
+    already_done: position.already_done ?? false,
+  };
 
   const handleTagChange = (tag: string, value: boolean) => {
-    setTags(prev => ({ ...prev, [tag]: value }));
     updateCustomTags(id, { [tag]: value });
-    window.dispatchEvent(new Event('storage'));
   };
 
   return (
@@ -44,8 +33,6 @@ export function PositionListCard({
         <LikeButton id={id} />
         <Level level={level} isAbsolute={false} />
       </div>
-      
-      {/* BUG FIX: Original code was fetching images from raminr77 website breaking the 100% offline requirement */}
       <img
         alt={imageAlt}
         loading="lazy"

@@ -46,9 +46,9 @@
       }
     </style>
 
-    <!-- Service Worker Registration -->
+    <!-- Service Worker Registration: skip in native Capacitor shell -->
     <script type="module">
-      if ('serviceWorker' in navigator) {
+      if ('serviceWorker' in navigator && !(window.Capacitor?.isNativePlatform?.())) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register(import.meta.env.BASE_URL + 'sw.js', { scope: import.meta.env.BASE_URL })
             .then((reg) => console.log('SW registrato:', reg.scope))

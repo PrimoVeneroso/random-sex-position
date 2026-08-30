@@ -28,15 +28,10 @@ jobs:
           cache: 'pnpm'
 
       - name: Install Dependencies
-        run: pnpm install --no-frozen-lockfile
-
-      - name: Fix Base URL and Routes for Native App
-        run: |
-          sed -i 's|base: "/random-sex-position/",|base: "/",|g' vite.config.ts
-          sed -i 's|export const ROUTE_PREFIX = "/random-sex-position";|export const ROUTE_PREFIX = "";|g' src/constants/routes.ts
+        run: pnpm install --frozen-lockfile
 
       - name: Build Web App
-        run: pnpm run build
+        run: VITE_BASE_PATH=/ pnpm run build
 
       - name: Sync Capacitor
         run: npx cap sync android
@@ -44,7 +39,7 @@ jobs:
       - name: Setup Keystore
         run: |
           mkdir -p ~/.android
-          cp fixed_debug.keystore ~/.android/debug.keystore || true
+          cp fixed_debug.keystore ~/.android/debug.keystore
 
       - name: Build APK
         working-directory: ./android

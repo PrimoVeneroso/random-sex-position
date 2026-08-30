@@ -1,7 +1,6 @@
 import { Link } from "react-router";
 
 import { useAppContext } from "@/hooks";
-import { APP_URL } from "@/constants/routes";
 
 export function PositionListHeader() {
   const { showGrid, setShowGrid, showFavorites, setShowFavorites } =
@@ -10,7 +9,7 @@ export function PositionListHeader() {
   return (
     <div className="sticky flex-wrap gap-4 top-0 dark:bg-gray-900 bg-white w-full flex items-center justify-between py-4 z-10 border-b border-slate-500/50 shadow-md">
       <Link
-        to={APP_URL.index}
+        to="/"
         className="cursor-pointer text-white text-center leading-8 px-4 py-1 rounded-md bg-slate-100/10 hover:bg-slate-800 duration-300 flex items-center"
       >
         <svg
@@ -29,7 +28,7 @@ export function PositionListHeader() {
 
       <div className="flex gap-4">
         <button
-          title="Favorites"
+          title="Toggle Grid"
           onClick={() => setShowGrid(!showGrid)}
           className="flex items-center justify-center leading-7 text-white cursor-pointer bg-slate-100/10 hover:bg-slate-800 duration-300 rounded-md p-2"
         >
@@ -42,20 +41,20 @@ export function PositionListHeader() {
             {showGrid ? (
               <path
                 fill="none"
-                stroke-width="2"
+                strokeWidth="2"
                 stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 d="M4 5h16M4 12h16M4 19h16"
                 className="animate__animated animate__fadeIn"
               />
             ) : (
               <g
                 fill="none"
-                stroke-width="2"
+                strokeWidth="2"
                 stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
                 <rect width="7" height="7" x="3" y="3" rx="1" />
                 <rect width="7" height="7" x="14" y="3" rx="1" />

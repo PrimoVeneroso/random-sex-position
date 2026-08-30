@@ -1,28 +1,22 @@
 import { clsx } from "clsx";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useAppContext } from "@/hooks";
 import { PositionListCard } from "@/components/position-list-card";
 import { PositionListHeader } from "@/components/position-list-header";
 import { PositionListGridCard } from "@/components/position-list-grid-card";
-import { getCustomTags } from "@/utils";
+import { useCustomTags } from "@/utils";
 import { data as rawData, type DataItem } from "../data";
 
 export function PositionList() {
   const { showGrid, showFavorites, favoritePositions } = useAppContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortAlpha, setSortAlpha] = useState(false);
-  const [customTags, setCustomTags] = useState(getCustomTags());
-
-  useEffect(() => {
-    const handleStorage = () => setCustomTags(getCustomTags());
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, []);
+  const customTags = useCustomTags(); // #14
 
   const data = useMemo(() => {
     return rawData.map(item => ({
       ...item,
-      ...(customTags[item.id] || {})
+      ...(customTags[String(item.id)] || {})
     }));
   }, [customTags]);
 
@@ -36,7 +30,6 @@ export function PositionList() {
       result = result.filter((item: DataItem) => item.title.toLowerCase().includes(q));
     }
     if (sortAlpha) {
-      // Sort ignoring initial numbers (e.g. "69 - Something" -> "Something")
       result = [...result].sort((a, b) => {
         const titleA = a.title.replace(/^[0-9\-\s]+/, "").trim();
         const titleB = b.title.replace(/^[0-9\-\s]+/, "").trim();
@@ -63,7 +56,7 @@ export function PositionList() {
         />
         <label className="flex items-center gap-1 cursor-pointer whitespace-nowrap text-sm border border-slate-500/50 p-2 rounded-md bg-slate-100/10">
           <input type="checkbox" checked={sortAlpha} onChange={e => setSortAlpha(e.target.checked)} />
-          Ordina A-Z
+          A-Z
         </label>
       </div>
 
@@ -79,6 +72,17 @@ export function PositionList() {
           ) : (
             <PositionListCard key={item.id} position={item} order={index + 1} />
           )
+        )}
+        {/* #20: empty state */}
+        {positions.length === 0 && (
+          <li className="text-center text-sm opacity-70 py-10 col-span-full">
+            No positions found{searchQuery ? ` for "${searchQuery}"` : ""}.{" "}
+            {searchQuery && (
+              <button onClick={() => setSearchQuery("")} className="underline text-pink-400">
+                Clear search
+              </button>
+            )}
+          </li>
         )}
       </ul>
     </div>
